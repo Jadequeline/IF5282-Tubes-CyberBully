@@ -137,6 +137,7 @@ for text in listWordBully:
 df['ans1'] = listLabel
 counter = Counter(df['ans1'])
 top_10_varieties = {i[0]: idx for idx, i in enumerate(counter.most_common(2))}
+print(top_10_varieties)
 df = df[df['ans1'].map(lambda x: x in top_10_varieties)]
 
 description_list = df['post'].tolist()
@@ -149,7 +150,7 @@ x_train_counts = count_vect.fit_transform(description_list)
 tfidf_transformer = TfidfTransformer()
 x_train_tfidf = tfidf_transformer.fit_transform(x_train_counts)
 
-train_x, test_x, train_y, test_y = train_test_split(x_train_tfidf, varietal_list, test_size=0.1)
+train_x, test_x, train_y, test_y = train_test_split(x_train_tfidf, varietal_list, test_size=0.2)
 
 clf = OneVsRestClassifier(SVC(kernel='linear', gamma=0.5)).fit(train_x, train_y)
 y_score = clf.predict(test_x)
@@ -161,3 +162,11 @@ for i in range(len(y_score)):
 
 print("Accuracy: %.2f%%" % ((n_right / float(len(test_y)) * 100)))
 print(classification_report(test_y, y_score))
+
+test = clf.predict(count_vect.transform(["Ur a fuckin idiot!"]))
+if  test == 0:
+    print("No")
+else:
+    for token in "Ur a fuckin idiot!":
+        if token in wordBully:
+            print(token)

@@ -16,7 +16,7 @@ import gensim
 import csv
 from sacremoses import  MosesDetokenizer
 import pickle
-
+from sklearn.metrics import classification_report
 
 slang_dict = {}
 listLabel = []
@@ -193,13 +193,23 @@ model.compile(loss = 'categorical_crossentropy', optimizer='adam',metrics = ['ac
 print(model.summary())
 
 batch_size = 128
-history = model.fit(X_train, y_train, epochs=5, batch_size=batch_size, verbose=1, validation_split=0.1)
-
-print(X_train.shape,y_train.shape)
+model.fit(X_train, y_train, epochs=5, batch_size=batch_size, verbose=1, validation_split=0.1)
 
 # save the model to disk
-filename = 'cyberbully_model.sav'
-pickle.dump(model, open(filename, 'wb'))
+# filename = 'cyberbully_model.sav'
+# pickle.dump(model, open(filename, 'wb'))
+
+test_input = tokenizer.texts_to_sequences([preprocess_text("Ur a fuckin idiot!")])
+test_input = pad_sequences(test_input, 50)
+y_score = model.predict_classes(test_input)
+if y_score == 1:
+    print("Yes")
+    for token in preprocess_text("Ur a fuckin idiot!"):
+        for bully in wordBully:
+            if token in bully:
+                    print(token)
+else:
+    print("No")
 
 y_hat = model.predict(X_test)
 print(accuracy_score(list(map(lambda x: np.argmax(x), y_test)), list(map(lambda x: np.argmax(x), y_hat))))
